@@ -3,6 +3,6 @@
 
 ## run local
 
-``` yarn or npm install ```
+1.``` yarn or npm install ```
 
-``` yarn start or npm run start ```
+2.``` yarn start or npm run start ```
