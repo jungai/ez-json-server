@@ -16,21 +16,25 @@ server.post('/login', (req, res) => {
   const { email, password } = req.body
 
   const result = userdb.user.filter(e => e.email === email && (verifyPassword(password, e.passowrd)))
-  const token = createToken({name: result.name, email: result.email}) 
-  const index = userdb.user.findIndex(u => u.email === email)
-  const normalize = Object.assign({}, ...result);
-  userdb.user[index] = { ...normalize, token}
+  if (result.length === 0) {
+    res.status(404).send('not found')
+  }
+  else {
+    const token = createToken({name: result.name, email: result.email}) 
+    const index = userdb.user.findIndex(u => u.email === email)
+    const normalize = Object.assign({}, ...result);
+    userdb.user[index] = { ...normalize, token}
 
-  const dataJSON = JSON.stringify(userdb)
-  fs.writeFile('db.json', dataJSON, 'utf8', (err) =>
-    {
-      if (err) { 
-        res.send(err)
+    const dataJSON = JSON.stringify(userdb)
+    fs.writeFile('db.json', dataJSON, 'utf8', (err) =>
+      {
+        if (err) { 
+          res.send(err)
+        }
+        res.status(201).jsonp({msg: 'login success', ...normalize, token }) 
       }
-      res.status(201).send('login')
-    }
-  );
-
+    );
+  }
 })
 
 
@@ -41,7 +45,7 @@ server.post('/custom/user', (req, res) => {
     email,
     passowrd: hashPassword(password)
   }
-  
+
   const cloneObj = [
     ...userdb.user,
     data
